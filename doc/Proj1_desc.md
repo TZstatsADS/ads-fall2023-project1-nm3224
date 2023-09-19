@@ -14,7 +14,10 @@ and recall three actual events
 that happened to you that made you happy. 
 Write down your happy moment 
 in a complete sentence.
-(Write three such moments.)
+
+1. My morning coffee made me happy.
+2. Seeing my friends at class made me happy.
+3. Submitting my assignment and relieving that pressure made me happy. 
 ```
 The goal of this project is to look deeper into the causes that make us happy. Natural language processing and text mining are natural tools to derive interesting findings in this collection of happy moments. 
 
