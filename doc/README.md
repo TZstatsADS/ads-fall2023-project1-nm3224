@@ -9,4 +9,5 @@ The doc directory contains the report or presentation files. It can have subfold
 + ```project_1.Rmd``` is **my code** answering my question: how do romantic relationships impact happiness across gender groups? Here, I utilized sentiment analysis, the ```word2vec``` model, and NLP by computing the frequencies of various "partner" related words.
 + ```project_1.pdf``` is **my notebook** with my figures and analysis answering my question.
 + ```project_1.html``` is **my html file** with my figures and analysis answering my question.
-  + ```project_1_files/figures-.html``` are my figures for **my html file**. 
+  + ```project_1_files/figures-.html``` are my figures for **my html file**.
+  + ```project_1_cache/html``` ***should*** make the notebook run faster b/c it saves the lemmatization there, which takes the most time.
