@@ -56,7 +56,7 @@ gender_df <- merge(cleaned_data, demo_data)
 
 Let's count the frequency of all words in our documents first.
 
-```{r}
+```{r word frequencies}
 #for some reason this code doesn't work unless I execute the steps in this stackoverflow link: https://stackoverflow.com/questions/51295402/r-on-macos-error-vector-memory-exhausted-limit-reached
 
 dtm <- TermDocumentMatrix(cleaned_data$text)
@@ -68,13 +68,13 @@ head(d, 10)
 
 Now, let's compare the frequency of words, stratified by each gender group.
 Note that we have roughly the same number of observations for each group, with slightly more testimonies from males. There are some 42,019 observations labeled female, and 57,597 observations labeled female. 
-```{r}
+```{r male/female dataframes}
 #FEMALE vs MALE
 f_1 <- subset(gender_df, gender_df$gender == 'f')
 m_2 <- subset(gender_df, gender_df$gender == 'm')
 ```
 
-```{r}
+```{r most frequent terms for females}
 #Most frequent terms for females discussing happy moments:
 
 dtm_f <- TermDocumentMatrix(f_1$text)
@@ -84,7 +84,7 @@ d_f <- data.frame(word = names(v_f),freq=v_f)
 head(d_f, 10)
 ```
 
-```{r}
+```{r most frequent terms for males}
 #Most frequent terms for males discussing happy moments:
 
 dtm_m <- TermDocumentMatrix(m_2$text)
@@ -95,11 +95,11 @@ head(d_m, 10)
 ```
 
 I don't see any major discrepancies off the bat; it may be more useful to now zone in on a specific bag of words I came up with related to romance, relationships, intimacy, and partnership.
-```{r}
+```{r bag of words}
 love <- c('wife', 'husband', 'kiss', 'date', 'boyfriend', 'girlfriend', 'fiance', 'fiancee', 'engaged', 'sex', 'sexual', 'dating', 'romance', 'romantic', 'spouse', 'partner', 'lover', 'marriage')
 ```
  
-```{r}
+```{r overall frequency of bag of words}
 #Overall frequency of romance across both categories
 romance <- subset(d, word %in% love)
 
@@ -115,7 +115,7 @@ romance_male$avg_freq <- romance_male$freq / romance$freq
 romance_female$avg_freq <- romance_female$freq / romance$freq
 ```
 
-```{r}
+```{r plot word frequencies for genders}
 romance_df <- rbind(romance_male, romance_female) 
 
 ggplot(romance_df, aes(fill=Gender, y=avg_freq, x=word)) + 
