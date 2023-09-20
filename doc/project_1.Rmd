@@ -242,7 +242,7 @@ dev.off()
 ```
 
 Overall, sentiment related to partner text is positive and with joy. Let's test this analysis and compare for both genders.
-### Per Gender
+## Per Gender
 ```{r gender sentiment analysis, echo=FALSE}
 partner_text_male <- m_2[grep(paste(love, collapse='|'), m_2$text, ignore.case=TRUE),]
 partner_male <- iconv(partner_text_male$text)
