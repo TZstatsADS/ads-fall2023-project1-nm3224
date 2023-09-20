@@ -173,7 +173,6 @@ partner_df <- subset(l$data, rownames(l$data) %in% word_list_partner)
 happiness_df <- subset(l$data, rownames(l$data) %in% word_list_happiness)
 ```
 
-
 ```{r umap plot, echo=FALSE}
 options(ggrepel.max.overlaps = Inf) 
 ggplot(partner_df, aes(x = x, y = y, label = word, color='blue')) +
@@ -183,7 +182,7 @@ ggsave(filename = file.path("../figs", 'word2vec_overall.png'))
 ```
 
 ## Per gender 
-```{r}
+```{r per gender}
 x_1 <- tolower(f_1$cleaned_hm)
 x_2 <- tolower(m_2$cleaned_hm)
 
@@ -214,7 +213,7 @@ ggsave('../figs/word2vec_genres.png')
 From this analysis we can see that male happiness is very closely associated with partnership/partner words, while female happiness is not. 
 
 Now, let's conduct a sentiment analysis on text referring to "love" and see how the sentiments vary between men and women.
-```{r}
+```{r sentiment analysis}
 partner_text <- gender_df[grep(paste(love, collapse='|'), gender_df$text, ignore.case=TRUE),]
 partner_mom <- iconv(partner_text$text)
 s <- get_nrc_sentiment(partner_mom)
@@ -222,7 +221,7 @@ head(s)
 ```
 
 
-```{r}
+```{r save figure}
 png("../figs/barplot_all.png")
 barplot(colSums(s),
         las = 2,
@@ -234,7 +233,7 @@ dev.off()
 
 Overall, sentiment related to partner text is positive and with joy. Let's test this analysis and compare for both genders.
 
-```{r}
+```{r gender sentiment analysis}
 partner_text_male <- m_2[grep(paste(love, collapse='|'), m_2$text, ignore.case=TRUE),]
 partner_male <- iconv(partner_text_male$text)
 s_male <- get_nrc_sentiment(partner_male)
@@ -245,7 +244,7 @@ s_female <- get_nrc_sentiment(partner_female)
 ```
 
 Let's put all the data into one dataframe.
-```{r}
+```{r sentiment analysis dataframe}
 sent <- colSums(s_male)
 df_m <- data.frame(sent, Gender = c('Male'))
 df_m <- cbind(feeling = rownames(df_m), df_m)
@@ -258,7 +257,7 @@ sents <- rbind(df_m, df_f)
 ```
 
 Let's plot both side by side:
-```{r}
+```{r plot sentiment analysis by gender}
 ggplot(sents, aes(fill=Gender, y=sent, x=feeling)) + 
   geom_bar(position="dodge", stat="identity") +
   theme(axis.text.x = element_text(angle = 90))
