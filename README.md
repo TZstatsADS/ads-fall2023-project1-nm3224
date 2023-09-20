@@ -30,4 +30,5 @@ Please see each subfolder for a README file.
 + My codes are in ```lib```
 + My data is in ```data```
 + My notebook is in ```doc```
+  + You may find my html notebook in: ```doc/project_1.pdf```
 + My figures are in ```figs```
