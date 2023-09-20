@@ -19,7 +19,7 @@ Set ur directory. I set mine running this in the console:
 ```
 You may check your directory by running getwd() in the console.
 
-```{r load_libraries, warning=FALSE, echo=FALSE}
+```{r load_libraries, warning=FALSE, include=FALSE, echo=FALSE}
 library(word2vec)
 library(uwot)
 library(tidytext)
