@@ -275,4 +275,5 @@ ggplot(sents, aes(fill=Gender, y=sent, x=feeling)) +
 
 ggsave(filename = file.path("../figs", 'sentiment_plot_genders.png'))
 ```
+## Conclusion
 Overall, documents referring to what I defined as "partner" or "relationship" words have higher sentiment values in categories positive, joy, trust, and more for males than for females. 
