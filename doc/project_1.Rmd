@@ -19,7 +19,6 @@ library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(ggrepel)
-library(plyr)
 library(tm)
 library(wordcloud)
 ```
@@ -27,7 +26,7 @@ library(wordcloud)
 ```{r data, warning=FALSE, echo=FALSE}
 pathfile <- '../output/processed_moments.csv'
 cleaned_data <- read.csv(pathfile)
-demo_data <- read.csv('https://raw.githubusercontent.com/megagonlabs/HappyDB/master/happydb/data/demographic.csv')
+demo_data <- read.csv('../data/demographic.csv')
 head(cleaned_data$cleaned_hm)
 head(demo_data)
 ```
@@ -86,7 +85,7 @@ d_m <- data.frame(word = names(v_m),freq=v_m)
 head(d_m, 10)
 ```
 
-I don't see any major discrepancies off the bat; it may be more useful to now zone in on a specific bag of words.
+I don't see any major discrepancies off the bat; it may be more useful to now zone in on a specific bag of words I came up with related to romance, relationships, intimacy, and partnership.
 ```{r}
 love <- c('wife', 'husband', 'kiss', 'date', 'boyfriend', 'girlfriend', 'fiance', 'fiancee', 'engaged', 'sex', 'sexual', 'dating', 'romance', 'romantic', 'spouse', 'partner', 'lover')
 ```
@@ -104,7 +103,6 @@ romance_female$Gender <- 'Female'
 
 #Compute average frequency for word for each gender category by dividing frequency for gender category by overall frequency over all documents
 romance_male$avg_freq <- romance_male$freq / romance$freq
-
 romance_female$avg_freq <- romance_female$freq / romance$freq
 ```
 
@@ -112,7 +110,10 @@ romance_female$avg_freq <- romance_female$freq / romance$freq
 romance_df <- rbind(romance_male, romance_female) 
 
 ggplot(romance_df, aes(fill=Gender, y=avg_freq, x=word)) + 
-    geom_bar(position="dodge", stat="identity")
+  geom_bar(position="dodge", stat="identity") +
+  theme(axis.text.x = element_text(angle = 90))
+
+ggsave(filename = file.path("../figs", 'romantic_words_plot.png'))
 ```
 
 It seems men that the average frequency for romance-related words is higher in the male category than the female category. This means men discuss their romantic lives and relationships when talking about their happy moments more than women. This could imply that romantic relationships, interactions, and experiences are more impactful and related to male happiness than female happiness. 
