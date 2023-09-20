@@ -19,7 +19,7 @@ Set ur directory. I set mine running this in the console:
 ```
 You may check your directory by running getwd() in the console.
 
-```{r load_libraries, warning=FALSE, echo=FALSE, eval=FALSE}
+```{r load_libraries, warning=FALSE, echo=FALSE}
 library(word2vec)
 library(uwot)
 library(tidytext)
@@ -139,7 +139,7 @@ cat(x[1])
 
 Lemmatizing our text and using speech tag (verb, adverb, noun, adjective) will make representation easier (let's say we want to see all adjectives and nouns relative to the topic of animals).
 Note this cell takes a while to run; followed the same lemmatization process as the TA.  
-```{r speech tagging and lemmatizing, echo=FALSE, eval=FALSE}
+```{r speech tagging and lemmatizing, echo=FALSE}
 process_data <- function(x, n_topics){
   anno <- udpipe(x, "english", trace = 10, parallel.cores = 1)
   anno <- subset(anno, !is.na(lemma) & nchar(lemma) > 1 & !upos %in% "PUNCT")
@@ -163,13 +163,13 @@ l <- process_data(x, 15)
 ```
 
 We now want to get the words most similar to partner in the embedding and we compare them to the words most similar to happy to observe a relationship.
-```{r most similar to partner, echo=FALSE, eval=FALSE}
+```{r most similar to partner, echo=FALSE}
 lookslike2 <- predict(l$model, c("partner//NOUN"), type = "nearest", top_n = 10)
 word_list_partner <- lookslike2$`partner//NOUN`$term2
 word_list_happiness <- predict(l$model, c("happy//ADJ"), type = "nearest", top_n = 50)$`happy//ADJ`$term2
 ```
 
-```{r slicing, echo=FALSE, eval=FALSE}
+```{r slicing, echo=FALSE}
 partner_df <- subset(l$data, rownames(l$data) %in% word_list_partner)
 happiness_df <- subset(l$data, rownames(l$data) %in% word_list_happiness)
 ```
@@ -187,7 +187,7 @@ ggsave(filename = file.path("../figs", 'word2vec_overall.png'))
 ## Per gender 
 Now, let's look at each per gender. 
 Note this cell also takes a while to run; followed the same process as the TA. Apologies!
-```{r per gender, echo=FALSE, eval=FALSE}
+```{r per gender, echo=FALSE}
 x_1 <- tolower(f_1$cleaned_hm)
 x_2 <- tolower(m_2$cleaned_hm)
 
@@ -236,7 +236,7 @@ barplot(colSums(s),
         main = 'Sentiment Scores for Partner-Related Tweets')
 ```
 
-```{r save image, echo=FALSE, eval=FALSE}
+```{r save image, echo=FALSE}
 png("../figs/barplot_all.png")
 dev.off()
 ```
