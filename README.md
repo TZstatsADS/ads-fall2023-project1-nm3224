@@ -26,3 +26,8 @@ proj/
 ```
 
 Please see each subfolder for a README file.
+
++ My codes are in ```lib```
++ My data is in ```data```
++ My notebook is in ```doc```
++ My figures are in ```figs```
