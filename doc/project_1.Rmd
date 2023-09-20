@@ -136,6 +136,7 @@ cat(x[1])
 ```
 
 Lemmatizing our text and using speech tag (verb, adverb, noun, adjective) will make representation easier (let's say we want to see all adjectives and nouns relative to the topic of animals).
+Note this cell takes a while to run; followed the same lemmatization process as the TA.  
 ```{r speech tagging and lemmatizing, echo=FALSE}
 process_data <- function(x, n_topics){
   anno <- udpipe(x, "english", trace = 10, parallel.cores = 1)
@@ -159,7 +160,8 @@ process_data <- function(x, n_topics){
 l <- process_data(x, 15)
 ```
 
-We now want to get the words most similar to partner in the embedding and we compare them to the words most similar to happy to observe a relationship. 
+We now want to get the words most similar to partner in the embedding and we compare them to the words most similar to happy to observe a relationship.
+Note this cell also takes a while to run; followed the same lemmatization process as the TA.
 ```{r most similar to partner, echo=FALSE}
 lookslike2 <- predict(l$model, c("partner//NOUN"), type = "nearest", top_n = 10)
 word_list_partner <- lookslike2$`partner//NOUN`$term2
@@ -213,7 +215,7 @@ From this analysis we can see that male happiness is very closely associated wit
 
 Now, let's conduct a sentiment analysis on text referring to "love" and see how the sentiments vary between men and women.
 ```{r}
-partner_text_male <- gender_df[grep(paste(love, collapse='|'), gender_df$text, ignore.case=TRUE),]
+partner_text <- gender_df[grep(paste(love, collapse='|'), gender_df$text, ignore.case=TRUE),]
 partner_mom <- iconv(partner_text$text)
 s <- get_nrc_sentiment(partner_mom)
 head(s)
@@ -264,8 +266,3 @@ ggplot(sents, aes(fill=Gender, y=sent, x=feeling)) +
 ggsave(filename = file.path("../figs", 'sentiment_plot_genders.png'))
 ```
 Overall, documents referring to what I defined as "partner" or "relationship" words have higher sentiment values in categories positive, joy, trust, and more for males than for females. 
-
-
-
-
-
