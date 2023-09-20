@@ -140,7 +140,7 @@ cat(x[1])
 
 Lemmatizing our text and using speech tag (verb, adverb, noun, adjective) will make representation easier (let's say we want to see all adjectives and nouns relative to the topic of animals).
 Note this cell takes a while to run; followed the same lemmatization process as the TA.  
-```{r speech tagging and lemmatizing, echo=FALSE, include=FALSE, cache=TRUE}
+```{r speech tagging and lemmatizing, echo=FALSE, include=FALSE}
 process_data <- function(x, n_topics){
   anno <- udpipe(x, "english", trace = 10, parallel.cores = 1)
   anno <- subset(anno, !is.na(lemma) & nchar(lemma) > 1 & !upos %in% "PUNCT")
@@ -188,7 +188,7 @@ ggsave(filename = file.path("../figs", 'word2vec_overall.png'))
 ## Per gender 
 Now, let's look at each per gender. 
 Note this cell also takes a while to run; followed the same process as the TA. Apologies!
-```{r per gender, echo=FALSE, include=FALSE, cache=TRUE}
+```{r per gender, echo=FALSE, include=FALSE}
 x_1 <- tolower(f_1$cleaned_hm)
 x_2 <- tolower(m_2$cleaned_hm)
 
