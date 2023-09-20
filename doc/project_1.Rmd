@@ -10,8 +10,14 @@ In this project, I explore how romantic relationships, experiences and interacti
 
 Make sure to install all packages below before running any code; I installed them by running: 
 ```{r}
-#install.packages('package') for each package listed.
+# install.packages('package') for each package listed.
 ```
+
+Set ur directory. I set mine running this in the console:
+```{r}
+# setwd('Desktop/GitHub/ads-fall2023-project1-nm3224/doc/')
+```
+You may check your directory by running getwd() in the console.
 
 ```{r load_libraries, warning=FALSE, echo=FALSE}
 library(word2vec)
@@ -25,16 +31,12 @@ library(tm)
 library(wordcloud)
 library(udpipe)
 
-#for topic modeling 
-library(topicmodels)
+#for sentiment analysis  
+
+library(syuzhet)
+library(lubridate)
+library(scales)
 library(reshape2)
-library(pals)
-library(SnowballC)
-library(lda)
-library(ldatuning)
-library(kableExtra)
-library(DT)
-library(flextable)
 ```
 
 ```{r data, warning=FALSE, echo=FALSE}
@@ -94,7 +96,7 @@ head(d_m, 10)
 
 I don't see any major discrepancies off the bat; it may be more useful to now zone in on a specific bag of words I came up with related to romance, relationships, intimacy, and partnership.
 ```{r}
-love <- c('wife', 'husband', 'kiss', 'date', 'boyfriend', 'girlfriend', 'fiance', 'fiancee', 'engaged', 'sex', 'sexual', 'dating', 'romance', 'romantic', 'spouse', 'partner', 'lover')
+love <- c('wife', 'husband', 'kiss', 'date', 'boyfriend', 'girlfriend', 'fiance', 'fiancee', 'engaged', 'sex', 'sexual', 'dating', 'romance', 'romantic', 'spouse', 'partner', 'lover', 'marriage')
 ```
  
 ```{r}
@@ -209,113 +211,61 @@ ggsave('../figs/word2vec_genres.png')
 ```
 From this analysis we can see that male happiness is very closely associated with partnership/partner words, while female happiness is not. 
 
-Let's now build a topic model.
+Now, let's conduct a sentiment analysis on text referring to "love" and see how the sentiments vary between men and women.
 ```{r}
-#  Overall topics
-# compute document term matrix with terms >= minimumFrequency
-minimumFrequency <- 5
-DTM <- DocumentTermMatrix(cleaned_data$text, control = list(bounds = list(global = c(minimumFrequency, Inf))))
-
-# have a look at the number of documents and terms in the matrix
-dim(DTM)
-
-# due to vocabulary pruning, we have empty rows in our DTM
-# LDA does not like this. So we remove those docs from the
-# DTM and the metadata
-sel_idx <- slam::row_sums(DTM) > 0
-DTM <- DTM[sel_idx, ]
-
-# number of topics
-K <- 20
-
-# set random number generator seed
-set.seed(9161)
-
-# compute the LDA model, inference via 1000 iterations of Gibbs sampling
-topicModel <- LDA(DTM, K, method="Gibbs", control=list(iter = 500, verbose = 25))
-
-terms(topicModel, 10)
-```
-```{r}
-# Topics for Females
-# compute document term matrix with terms >= minimumFrequency
-minimumFrequency <- 5
-DTM <- DocumentTermMatrix(f_1$text, control = list(bounds = list(global = c(minimumFrequency, Inf))))
-
-# have a look at the number of documents and terms in the matrix
-dim(DTM)
-
-# due to vocabulary pruning, we have empty rows in our DTM
-# LDA does not like this. So we remove those docs from the
-# DTM and the metadata
-sel_idx <- slam::row_sums(DTM) > 0
-DTM <- DTM[sel_idx, ]
-
-# number of topics
-K <- 20
-
-# set random number generator seed
-set.seed(9161)
-
-# compute the LDA model, inference via 1000 iterations of Gibbs sampling
-topicModel <- LDA(DTM, K, method="Gibbs", control=list(iter = 500, verbose = 25))
-
-terms(topicModel, 10)
-```
-```{r}
-# Topics for Males
-# compute document term matrix with terms >= minimumFrequency
-minimumFrequency <- 5
-DTM <- DocumentTermMatrix(m_2$text, control = list(bounds = list(global = c(minimumFrequency, Inf))))
-
-# have a look at the number of documents and terms in the matrix
-dim(DTM)
-
-# due to vocabulary pruning, we have empty rows in our DTM
-# LDA does not like this. So we remove those docs from the
-# DTM and the metadata
-sel_idx <- slam::row_sums(DTM) > 0
-DTM <- DTM[sel_idx, ]
-
-# number of topics
-K <- 20
-
-# set random number generator seed
-set.seed(9161)
-
-# compute the LDA model, inference via 1000 iterations of Gibbs sampling
-topicModel <- LDA(DTM, K, method="Gibbs", control=list(iter = 500, verbose = 25))
-
-terms(topicModel, 10)
+partner_text_male <- gender_df[grep(paste(love, collapse='|'), gender_df$text, ignore.case=TRUE),]
+partner_mom <- iconv(partner_text$text)
+s <- get_nrc_sentiment(partner_mom)
+head(s)
 ```
 
-```{r}
-top5termsPerTopic <- terms(topicModel, 5)
-topicNames <- apply(top5termsPerTopic, 2, paste, collapse=" ")
-```
 
 ```{r}
-# have a look a some of the results (posterior distributions)
-tmResult <- posterior(topicModel)
-
-# format of the resulting object
-attributes(tmResult)
+png("../figs/barplot_all.png")
+barplot(colSums(s),
+        las = 2,
+        col = rainbow(10),
+        ylab = 'Count',
+        main = 'Sentiment Scores for Partner-Related Tweets')
+dev.off()
 ```
+
+Overall, sentiment related to partner text is positive and with joy. Let's test this analysis and compare for both genders.
 
 ```{r}
-# visualize topics as word cloud
-topicToViz <- 11 # change for your own topic of interest
-topicToViz <- grep('husband', topicNames)[1] # Or select a topic by a term contained in its name
+partner_text_male <- m_2[grep(paste(love, collapse='|'), m_2$text, ignore.case=TRUE),]
+partner_male <- iconv(partner_text_male$text)
+s_male <- get_nrc_sentiment(partner_male)
 
-# select to 40 most probable terms from the topic by sorting the term-topic-probability vector in decreasing order
-top40terms <- sort(tmResult$terms[topicToViz,], decreasing=TRUE)[1:40]
-words <- names(top40terms)
-
-# extract the probabilites of each of the 40 terms
-probabilities <- sort(tmResult$terms[topicToViz,], decreasing=TRUE)[1:40]
-
-# visualize the terms as wordcloud
-mycolors <- brewer.pal(8, "Dark2")
-wordcloud(words, probabilities, random.order = FALSE, color = mycolors)
+partner_text_female <- f_1[grep(paste(love, collapse='|'), f_1$text, ignore.case=TRUE),]
+partner_female <- iconv(partner_text_female$text)
+s_female <- get_nrc_sentiment(partner_female)
 ```
+
+Let's put all the data into one dataframe.
+```{r}
+sent <- colSums(s_male)
+df_m <- data.frame(sent, Gender = c('Male'))
+df_m <- cbind(feeling = rownames(df_m), df_m)
+
+sent <- colSums(s_female)
+df_f <- data.frame(sent, Gender = c('Female'))
+df_f <- cbind(feeling = rownames(df_f), df_f)
+
+sents <- rbind(df_m, df_f)
+```
+
+Let's plot both side by side:
+```{r}
+ggplot(sents, aes(fill=Gender, y=sent, x=feeling)) + 
+  geom_bar(position="dodge", stat="identity") +
+  theme(axis.text.x = element_text(angle = 90))
+
+ggsave(filename = file.path("../figs", 'sentiment_plot_genders.png'))
+```
+Overall, documents referring to what I defined as "partner" or "relationship" words have higher sentiment values in categories positive, joy, trust, and more for males than for females. 
+
+
+
+
 
