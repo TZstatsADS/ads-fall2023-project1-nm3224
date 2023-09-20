@@ -19,7 +19,7 @@ Set ur directory. I set mine running this in the console:
 ```
 You may check your directory by running getwd() in the console.
 
-```{r load_libraries, warning=FALSE, echo=FALSE}
+```{r load_libraries, warning=FALSE, echo=FALSE, eval=FALSE}
 library(word2vec)
 library(uwot)
 library(tidytext)
@@ -39,6 +39,7 @@ library(scales)
 library(reshape2)
 ```
 
+Let's take a look at some happy moments, and the accompanying data:
 ```{r data, warning=FALSE, echo=FALSE}
 pathfile <- '../output/processed_moments.csv'
 cleaned_data <- read.csv(pathfile)
@@ -47,17 +48,17 @@ head(cleaned_data$cleaned_hm)
 head(demo_data)
 ```
 
-We need to combine `demo_data$gender` to `cleaned_data`, join on `wid` to compare gender groups.
-
 ```{r process data, echo=FALSE}
+# We need to first combine `demo_data$gender` to `cleaned_data`, join on `wid` to compare gender groups.
 ## Per gender 
 gender_df <- merge(cleaned_data, demo_data)
 ```
 
-Let's count the frequency of all words in our documents first.
+Here is the frequency of all words in our documents: these are the top 10 with the highest frequencies.
 
-```{r word frequencies}
-#for some reason this code doesn't work unless I execute the steps in this stackoverflow link: https://stackoverflow.com/questions/51295402/r-on-macos-error-vector-memory-exhausted-limit-reached
+```{r word frequencies, echo=FALSE}
+# Then, we count the frequency of all words in our documents.
+# for some reason this code doesn't work unless I execute the steps in this stackoverflow link: https://stackoverflow.com/questions/51295402/r-on-macos-error-vector-memory-exhausted-limit-reached
 
 dtm <- TermDocumentMatrix(cleaned_data$text)
 m <- as.matrix(dtm)
@@ -68,14 +69,14 @@ head(d, 10)
 
 Now, let's compare the frequency of words, stratified by each gender group.
 Note that we have roughly the same number of observations for each group, with slightly more testimonies from males. There are some 42,019 observations labeled female, and 57,597 observations labeled female. 
-```{r male/female dataframes}
+```{r male/female dataframes, echo=FALSE}
 #FEMALE vs MALE
 f_1 <- subset(gender_df, gender_df$gender == 'f')
 m_2 <- subset(gender_df, gender_df$gender == 'm')
 ```
 
-```{r most frequent terms for females}
-#Most frequent terms for females discussing happy moments:
+Here are the most frequent terms for females discussing happy moments:
+```{r most frequent terms for females, echo=FALSE}
 
 dtm_f <- TermDocumentMatrix(f_1$text)
 m_f <- as.matrix(dtm_f)
@@ -83,8 +84,8 @@ v_f <- sort(rowSums(m_f),decreasing=TRUE)
 d_f <- data.frame(word = names(v_f),freq=v_f)
 head(d_f, 10)
 ```
-
-```{r most frequent terms for males}
+Here are the most frequent terms for males discussing happy moments:
+```{r most frequent terms for males, echo=FALSE}
 #Most frequent terms for males discussing happy moments:
 
 dtm_m <- TermDocumentMatrix(m_2$text)
@@ -94,12 +95,12 @@ d_m <- data.frame(word = names(v_m),freq=v_m)
 head(d_m, 10)
 ```
 
-I don't see any major discrepancies off the bat; it may be more useful to now zone in on a specific bag of words I came up with related to romance, relationships, intimacy, and partnership.
+I don't see any major discrepancies off the bat; it may be more useful to now zone in on a specific bag of words I came up with related to romance, relationships, intimacy, and partnership. 
 ```{r bag of words}
 love <- c('wife', 'husband', 'kiss', 'date', 'boyfriend', 'girlfriend', 'fiance', 'fiancee', 'engaged', 'sex', 'sexual', 'dating', 'romance', 'romantic', 'spouse', 'partner', 'lover', 'marriage')
 ```
  
-```{r overall frequency of bag of words}
+```{r overall frequency of bag of words, echo=FALSE}
 #Overall frequency of romance across both categories
 romance <- subset(d, word %in% love)
 
@@ -115,7 +116,8 @@ romance_male$avg_freq <- romance_male$freq / romance$freq
 romance_female$avg_freq <- romance_female$freq / romance$freq
 ```
 
-```{r plot word frequencies for genders}
+Let's take a look at the average word frequencies (frequency for gender m vs. f / overall frequency) for romance related words for both genders:
+```{r plot word frequencies for genders, echo=FALSE}
 romance_df <- rbind(romance_male, romance_female) 
 
 ggplot(romance_df, aes(fill=Gender, y=avg_freq, x=word)) + 
@@ -127,9 +129,9 @@ ggsave(filename = file.path("../figs", 'romantic_words_plot.png'))
 
 It seems men that the average frequency for romance-related words is higher in the male category than the female category. This means men discuss their romantic lives and relationships when talking about their happy moments more than women. This could imply that romantic relationships, interactions, and experiences are more impactful and related to male happiness than female happiness. 
 
-##Leveraging word2vec for Partner-related words and happiness
+## Leveraging word2vec for Partner-related words and happiness
 Now, using word2vec: first, we convert the data to a list of characters to input into our model. 
-```{r conversion}
+```{r conversion, echo=FALSE}
 ## Overall vocabulary between happiness and animals
 x <- tolower(cleaned_data$cleaned_hm)
 cat(x[1])
@@ -137,7 +139,7 @@ cat(x[1])
 
 Lemmatizing our text and using speech tag (verb, adverb, noun, adjective) will make representation easier (let's say we want to see all adjectives and nouns relative to the topic of animals).
 Note this cell takes a while to run; followed the same lemmatization process as the TA.  
-```{r speech tagging and lemmatizing, echo=FALSE}
+```{r speech tagging and lemmatizing, echo=FALSE, eval=FALSE}
 process_data <- function(x, n_topics){
   anno <- udpipe(x, "english", trace = 10, parallel.cores = 1)
   anno <- subset(anno, !is.na(lemma) & nchar(lemma) > 1 & !upos %in% "PUNCT")
@@ -161,18 +163,19 @@ l <- process_data(x, 15)
 ```
 
 We now want to get the words most similar to partner in the embedding and we compare them to the words most similar to happy to observe a relationship.
-```{r most similar to partner, echo=FALSE}
+```{r most similar to partner, echo=FALSE, eval=FALSE}
 lookslike2 <- predict(l$model, c("partner//NOUN"), type = "nearest", top_n = 10)
 word_list_partner <- lookslike2$`partner//NOUN`$term2
 word_list_happiness <- predict(l$model, c("happy//ADJ"), type = "nearest", top_n = 50)$`happy//ADJ`$term2
 ```
 
-```{r slicing, echo=FALSE}
+```{r slicing, echo=FALSE, eval=FALSE}
 partner_df <- subset(l$data, rownames(l$data) %in% word_list_partner)
 happiness_df <- subset(l$data, rownames(l$data) %in% word_list_happiness)
 ```
 
-##Overall 
+Let's analyze partner and happy associated words for our corpus.
+## Overall 
 ```{r umap plot, echo=FALSE}
 options(ggrepel.max.overlaps = Inf) 
 ggplot(partner_df, aes(x = x, y = y, label = word, color='blue')) +
@@ -182,8 +185,9 @@ ggsave(filename = file.path("../figs", 'word2vec_overall.png'))
 ```
 
 ## Per gender 
+Now, let's look at each per gender. 
 Note this cell also takes a while to run; followed the same process as the TA. Apologies!
-```{r per gender}
+```{r per gender, echo=FALSE, eval=FALSE}
 x_1 <- tolower(f_1$cleaned_hm)
 x_2 <- tolower(m_2$cleaned_hm)
 
@@ -213,18 +217,18 @@ ggsave('../figs/word2vec_genres.png')
 ```
 From this analysis we can see that male happiness is very closely associated with partnership/partner words, while female happiness is not. 
 
-##Sentiment Analysis
-Now, let's conduct a sentiment analysis on text referring to "love" and see how the sentiments vary between men and women.
-```{r sentiment analysis}
+## Sentiment Analysis
+Now, let's conduct a sentiment analysis on text documents referring to "love" and see how the sentiments vary between men and women.
+```{r sentiment analysis, echo=FALSE}
 partner_text <- gender_df[grep(paste(love, collapse='|'), gender_df$text, ignore.case=TRUE),]
 partner_mom <- iconv(partner_text$text)
 s <- get_nrc_sentiment(partner_mom)
 head(s)
 ```
-
-###Overall
-```{r save figure}
-png("../figs/barplot_all.png")
+We have 10 sentiments to look at.
+Let's look at these sentiments for documents including the words listed in the "love" listed I provided.
+### Overall
+```{r plot figure, echo=FALSE}
 barplot(colSums(s),
         las = 2,
         col = rainbow(10),
@@ -232,14 +236,14 @@ barplot(colSums(s),
         main = 'Sentiment Scores for Partner-Related Tweets')
 ```
 
-```{r save image}
+```{r save image, echo=FALSE, eval=FALSE}
+png("../figs/barplot_all.png")
 dev.off()
 ```
 
-
 Overall, sentiment related to partner text is positive and with joy. Let's test this analysis and compare for both genders.
-###Per Gender
-```{r gender sentiment analysis}
+### Per Gender
+```{r gender sentiment analysis, echo=FALSE}
 partner_text_male <- m_2[grep(paste(love, collapse='|'), m_2$text, ignore.case=TRUE),]
 partner_male <- iconv(partner_text_male$text)
 s_male <- get_nrc_sentiment(partner_male)
@@ -249,8 +253,8 @@ partner_female <- iconv(partner_text_female$text)
 s_female <- get_nrc_sentiment(partner_female)
 ```
 
-Let's put all the data into one dataframe.
-```{r sentiment analysis dataframe}
+```{r sentiment analysis dataframe, echo=FALSE}
+# Let's put all the data into one dataframe.
 sent <- colSums(s_male)
 df_m <- data.frame(sent, Gender = c('Male'))
 df_m <- cbind(feeling = rownames(df_m), df_m)
@@ -263,7 +267,7 @@ sents <- rbind(df_m, df_f)
 ```
 
 Let's plot both side by side:
-```{r plot sentiment analysis by gender}
+```{r plot sentiment analysis by gender, echo=FALSE}
 ggplot(sents, aes(fill=Gender, y=sent, x=feeling)) + 
   geom_bar(position="dodge", stat="identity") +
   theme(axis.text.x = element_text(angle = 90))
