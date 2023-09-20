@@ -161,7 +161,6 @@ l <- process_data(x, 15)
 ```
 
 We now want to get the words most similar to partner in the embedding and we compare them to the words most similar to happy to observe a relationship.
-Note this cell also takes a while to run; followed the same lemmatization process as the TA.
 ```{r most similar to partner, echo=FALSE}
 lookslike2 <- predict(l$model, c("partner//NOUN"), type = "nearest", top_n = 10)
 word_list_partner <- lookslike2$`partner//NOUN`$term2
@@ -173,7 +172,6 @@ partner_df <- subset(l$data, rownames(l$data) %in% word_list_partner)
 happiness_df <- subset(l$data, rownames(l$data) %in% word_list_happiness)
 ```
 
-
 ##Overall 
 ```{r umap plot, echo=FALSE}
 options(ggrepel.max.overlaps = Inf) 
@@ -184,6 +182,7 @@ ggsave(filename = file.path("../figs", 'word2vec_overall.png'))
 ```
 
 ## Per gender 
+Note this cell also takes a while to run; followed the same process as the TA. Apologies!
 ```{r per gender}
 x_1 <- tolower(f_1$cleaned_hm)
 x_2 <- tolower(m_2$cleaned_hm)
