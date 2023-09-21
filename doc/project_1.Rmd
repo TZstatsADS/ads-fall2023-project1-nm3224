@@ -117,7 +117,7 @@ romance_female$avg_freq <- romance_female$freq / romance$freq
 ```
 
 ## Word Frequency
-Let's take a look at the oercentage for word frequency (frequency for gender m vs. f / overall frequency) for romance related words for both genders:
+Let's take a look at the percentage for word frequency (frequency for gender m vs. f / overall frequency) for romance related words for both genders:
 ```{r plot word frequencies for genders, echo=FALSE}
 romance_df <- rbind(romance_male, romance_female) 
 
