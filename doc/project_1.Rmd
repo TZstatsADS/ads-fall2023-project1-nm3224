@@ -6,7 +6,7 @@ output: html_document
 
 *Question*: How do romantic relationships, experiences and interactions impact happiness across gender groups? 
 
-In this project, I explore how romantic relationships, experiences and interactions impact happiness across gender groups of male and female, through computing the average word frequency for a bag of "romance"-related words for male and female, LDA topic modeling, and word2vec. 
+In this project, I explore how romantic relationships, experiences and interactions impact happiness across gender groups of male and female, through computing the percentage for word frequencies for a bag of "romance"-related words for male and female, sentiment analysis, and word2vec. 
 
 Make sure to install all packages below before running any code; I installed them by running: 
 ```{r}
@@ -139,8 +139,8 @@ cat(x[1])
 ```
 
 Lemmatizing our text and using speech tag (verb, adverb, noun, adjective) will make representation easier (let's say we want to see all adjectives and nouns relative to the topic of animals).
-Note this cell takes a while to run; followed the same lemmatization process as the TA.  
-```{r speech tagging and lemmatizing, echo=FALSE, include=FALSE}
+```{r speech tagging and lemmatizing, echo=FALSE, include=FALSE, eval=FALSE}
+#Note this cell takes a while to run; I followed the same lemmatization process as the TA. For the purposes of replicating my notebook, I have "eval=FALSE" but for the code cells to run in my ".Rmd" file inside "doc", make sure to remove that.
 process_data <- function(x, n_topics){
   anno <- udpipe(x, "english", trace = 10, parallel.cores = 1)
   anno <- subset(anno, !is.na(lemma) & nchar(lemma) > 1 & !upos %in% "PUNCT")
@@ -164,20 +164,27 @@ l <- process_data(x, 15)
 ```
 
 We now want to get the words most similar to partner in the embedding and we compare them to the words most similar to happy to observe a relationship.
-```{r most similar to partner, echo=FALSE}
+```{r most similar to partner, echo=FALSE, eval=FALSE}
+#Note this cell takes a while to run; I followed the same lemmatization process as the TA. For the purposes of replicating my notebook, I have "eval=FALSE" but for the code cells to run in my ".Rmd" file inside "doc", make sure to remove that.
 lookslike2 <- predict(l$model, c("partner//NOUN"), type = "nearest", top_n = 10)
 word_list_partner <- lookslike2$`partner//NOUN`$term2
 word_list_happiness <- predict(l$model, c("happy//ADJ"), type = "nearest", top_n = 50)$`happy//ADJ`$term2
 ```
 
-```{r slicing, echo=FALSE}
+```{r slicing, echo=FALSE, eval=FALSE}
+#Note this cell takes a while to run; I followed the same lemmatization process as the TA. For the purposes of replicating my notebook, I have "eval=FALSE" but for the code cells to run in my ".Rmd" file inside "doc", make sure to remove that.
 partner_df <- subset(l$data, rownames(l$data) %in% word_list_partner)
 happiness_df <- subset(l$data, rownames(l$data) %in% word_list_happiness)
 ```
 
 Let's analyze partner and happy associated words for our corpus.
 ## Overall 
-```{r umap plot, echo=FALSE}
+```{r, echo=FALSE}
+knitr::include_graphics("../figs/word2vec_overall.png")
+```
+
+```{r umap plot, echo=FALSE, eval=FALSE}
+#Note this cell takes a while to run; I followed the same lemmatization process as the TA. For the purposes of replicating my notebook, I have "eval=FALSE" but for the code cells to run in my ".Rmd" file inside "doc", make sure to remove that.
 options(ggrepel.max.overlaps = Inf) 
 ggplot(partner_df, aes(x = x, y = y, label = word, color='blue')) +
 geom_text_repel() + theme_void() + geom_text_repel(data=happiness_df, aes(x=x, y=y, label=word, color='red'))
@@ -187,8 +194,7 @@ ggsave(filename = file.path("../figs", 'word2vec_overall.png'))
 
 ## Per gender 
 Now, let's look at each per gender. 
-Note this cell also takes a while to run; followed the same process as the TA. Apologies!
-```{r per gender, echo=FALSE, include=FALSE}
+```{r per gender, echo=FALSE, include=FALSE, eval=FALSE}
 x_1 <- tolower(f_1$cleaned_hm)
 x_2 <- tolower(m_2$cleaned_hm)
 
@@ -206,7 +212,8 @@ partner2 <- subset(l_2$data, rownames(l_2$data) %in% word_list_partner2)
 happiness2 <- subset(l_2$data, rownames(l_2$data) %in% word_list_happiness2)
 ```
 
-```{r umap plot with genres, warning=FALSE, echo=FALSE}
+```{r umap plot with genres, warning=FALSE, echo=FALSE, eval=FALSE}
+#Note this cell takes a while to run; I followed the same lemmatization process as the TA. For the purposes of replicating my notebook, I have "eval=FALSE" but for the code cells to run in my ".Rmd" file inside "doc", make sure to remove that.
 options(ggrepel.max.overlaps = Inf) 
 ggplot(partner1, aes(x = x, y = y, label = word, color='blue')) +
 geom_text_repel() + theme_void() + geom_text_repel(data=happiness1, aes(x=x, y=y, label=word, color='red')) +
@@ -216,6 +223,11 @@ geom_text_repel() + theme_void() + geom_text_repel(data=partner2, aes(x=x, y=y, 
 labs(title = "Most similar words to partner with word2vec - umap")
 ggsave('../figs/word2vec_genres.png')
 ```
+
+```{r, echo=FALSE}
+knitr::include_graphics("../figs/word2vec_genres.png")
+```
+
 From this analysis we can see that male happiness is very closely associated with partnership/partner words, while female happiness is not. 
 
 ## Sentiment Analysis
@@ -243,6 +255,7 @@ dev.off()
 ```
 
 Overall, sentiment related to partner text is positive and with joy. Let's test this analysis and compare for both genders.
+
 ## Per Gender
 ```{r gender sentiment analysis, echo=FALSE}
 partner_text_male <- m_2[grep(paste(love, collapse='|'), m_2$text, ignore.case=TRUE),]
@@ -276,4 +289,6 @@ ggplot(sents, aes(fill=Gender, y=sent, x=feeling)) +
 ggsave(filename = file.path("../figs", 'sentiment_plot_genders.png'))
 ```
 ## Conclusion
-Overall, documents referring to what I defined as "partner" or "relationship" words have higher sentiment values in categories positive, joy, trust, and more for males than for females. 
+To conclude, through our sentiment analysis, documents referring to what I defined as "partner" or "relationship" words have higher sentiment values in categories positive, joy, trust, and more for males than for females. We also found that there is a higher percentage of males referring to their partners and romantic-relationship "n-grams" than women through our word frequency analysis. Our word2vec model showed that males' happiness correlates to partner words much more than females' happiness; in fact, partner words for women are located much farther away from happiness words than are partner words for men. There is significantly overlap for happy words and partner words for men tham for women, reflecting this association.
+
+Why could this be? I hypothesized that romantic relationships contribute to happiness more for men than for women, which incentivized me to do this study. In the future, I'd want to dig deeper into a hypothesis for what are driving causes for happiness for women instead. 
