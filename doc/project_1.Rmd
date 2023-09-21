@@ -95,7 +95,7 @@ d_m <- data.frame(word = names(v_m),freq=v_m)
 head(d_m, 10)
 ```
 
-I don't see any major discrepancies off the bat; it may be more useful to now zone in on a specific bag of words I came up with related to romance, relationships, intimacy, and partnership. 
+I don't see any major discrepancies off the bat; it may be more useful to now zone in on a specific bag of words with n-grams I came up with related to romance, relationships, intimacy, and partnership. 
 ```{r bag of words}
 love <- c('wife', 'husband', 'kiss', 'date', 'boyfriend', 'girlfriend', 'fiance', 'fiancee', 'engaged', 'sex', 'sexual', 'dating', 'romance', 'romantic', 'spouse', 'partner', 'lover', 'marriage')
 ```
