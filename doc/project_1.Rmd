@@ -117,7 +117,7 @@ romance_female$avg_freq <- romance_female$freq / romance$freq
 ```
 
 ## Word Frequency
-Let's take a look at the average word frequencies (frequency for gender m vs. f / overall frequency) for romance related words for both genders:
+Let's take a look at the oercentage for word frequency (frequency for gender m vs. f / overall frequency) for romance related words for both genders:
 ```{r plot word frequencies for genders, echo=FALSE}
 romance_df <- rbind(romance_male, romance_female) 
 
@@ -128,7 +128,7 @@ ggplot(romance_df, aes(fill=Gender, y=avg_freq, x=word)) +
 ggsave(filename = file.path("../figs", 'romantic_words_plot.png'))
 ```
 
-It seems men that the average frequency for romance-related words is higher in the male category than the female category. This means men discuss their romantic lives and relationships when talking about their happy moments more than women. This could imply that romantic relationships, interactions, and experiences are more impactful and related to male happiness than female happiness. 
+It seems men that the percentage frequency for romance-related words is higher in the male category than the female category. This means men discuss their romantic lives and relationships when talking about their happy moments more than women. This could imply that romantic relationships, interactions, and experiences are more impactful and related to male happiness than female happiness. 
 
 ## Leveraging word2vec for Partner-related words and happiness
 Now, using word2vec: first, we convert the data to a list of characters to input into our model. 
